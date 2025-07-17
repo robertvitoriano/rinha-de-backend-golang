@@ -16,6 +16,4 @@ WORKDIR /app
 
 COPY --from=builder /app/rinha .
 
-EXPOSE 4444
-
 CMD ["./rinha"]
