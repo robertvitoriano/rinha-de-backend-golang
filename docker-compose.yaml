@@ -24,7 +24,7 @@ services:
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
     ports:
-      - "8080:80"
+      - "9999:80"
     networks:
       - payment-processor
     depends_on:
