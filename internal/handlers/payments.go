@@ -3,8 +3,6 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
-	"log"
-	"net/http"
 	"time"
 
 	"github.com/go-redis/redis"
@@ -65,11 +63,11 @@ func (ph *PaymentHandlers) ReceivePayment(c *fiber.Ctx) error {
 	fmt.Println("Payment successfully stored")
 
 	//TODO MAKE REQUEST TO PAYMENT PROCCESSOR AND HANDLE FAILURE
-	resp, err := http.Get("https://api.example.com/data")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer resp.Body.Close()
+	// resp, err := http.Get("https://api.example.com/data")
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// defer resp.Body.Close()
 
 	return nil
 }
