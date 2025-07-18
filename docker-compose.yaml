@@ -3,9 +3,22 @@ services:
       build:
         context: .
         dockerfile: Dockerfile
+      networks:
+        - payment-processor
       ports:
         - 4444:4444
+    rinha-2:
+      build:
+        context: .
+        dockerfile: Dockerfile
+      networks:
+        - payment-processor
+      ports:
+        -  4444:4444
     redis:
       image: redis:alpine3.21
       ports:
         - 6379:6379
+networks:
+  payment-processor:
+    external: true
