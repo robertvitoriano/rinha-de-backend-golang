@@ -1,7 +1,5 @@
-version: "3.8"
-
-services:
-  rinha:
+x-service-templates:
+  rinha: &rinha
     build:
       context: .
       dockerfile: Dockerfile
@@ -9,16 +7,21 @@ services:
       - payment-processor
     expose:
       - "4444"
+    deploy:
+      resources:
+        limits:
+          cpus: "1.5"
+          memory: "250mb"
+    depends_on:
+    - redis
+  
+services:
+  rinha-1:
+   <<: *rinha
 
   rinha-2:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    networks:
-      - payment-processor
-    expose:
-      - "4444"
-
+   <<: *rinha
+   
   nginx:
     image: nginx:alpine
     volumes:
@@ -28,7 +31,7 @@ services:
     networks:
       - payment-processor
     depends_on:
-      - rinha
+      - rinha-1
       - rinha-2
 
   redis:
