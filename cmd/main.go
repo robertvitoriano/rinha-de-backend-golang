@@ -19,12 +19,11 @@ func main() {
 		pubsub := redisClient.Subscribe("payments")
 		ch := pubsub.Channel()
 
-		jobManager := services.NewJobManager(ch)
+		workerCount := 4
+		jobManager := services.NewJobManager(ch, workerCount)
 
 		jobManager.Run()
-
 	}()
-
 	app.Post("/payments", paymentHandlers.ReceivePayment)
 	app.Listen(":4444")
 }

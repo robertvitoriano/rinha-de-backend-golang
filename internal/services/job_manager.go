@@ -10,22 +10,34 @@ import (
 
 type JobManager struct {
 	PaymentChannel <-chan *redis.Message
+	WorkerCount    int
 }
 
-func NewJobManager(redisChannel <-chan *redis.Message) *JobManager {
-
+func NewJobManager(redisChannel <-chan *redis.Message, workerCount int) *JobManager {
 	return &JobManager{
 		PaymentChannel: redisChannel,
+		WorkerCount:    workerCount,
 	}
 }
 
 func (jm *JobManager) Run() {
+	jobs := make(chan handlers.ReceivePaymentBody)
+
+	for i := 0; i < jm.WorkerCount; i++ {
+		go func() {
+			for paymentData := range jobs {
+				paymentProcessorClient := clients.NewPaymentProcessor()
+				Job(paymentData, paymentProcessorClient)
+			}
+		}()
+	}
+
 	for msg := range jm.PaymentChannel {
 		var paymentData handlers.ReceivePaymentBody
 		err := json.Unmarshal([]byte(msg.Payload), &paymentData)
-		paymentProcessorClient := clients.NewPaymentProcessor()
 		if err == nil {
-			go Job(paymentData, paymentProcessorClient)
+			jobs <- paymentData
 		}
 	}
+	close(jobs)
 }
