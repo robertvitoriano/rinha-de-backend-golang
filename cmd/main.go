@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"os"
 
 	"github.com/go-redis/redis"
@@ -21,21 +22,27 @@ func main() {
 		os.Getenv("PAYMENT_PROCESSOR_URL"),
 		os.Getenv("PAYMENT_PROCESSOR_URL"),
 	}
+
 	defaultBaseUrlIndex := 0
 	fallbackBaseUrlIndex := 1
 	paymentProcessorClient := clients.NewPaymentProcessor()
 	paymentProcessorClient.SetBaseUrl(paymentProcessorUrls[defaultBaseUrlIndex])
-	paymentData := handlers.ReceivePaymentBody{
-		CorrelationId: "asdsa",
-		Amount:        15,
-	}
 
-	err := paymentProcessorClient.SendPayment(paymentData)
-
-	if err != nil {
-		paymentProcessorClient.SetBaseUrl(paymentProcessorUrls[fallbackBaseUrlIndex])
-		paymentProcessorClient.SendPayment(paymentData)
-	}
+	go func() {
+		pubsub := redisClient.Subscribe("payments")
+		ch := pubsub.Channel()
+		for msg := range ch {
+			var paymentData handlers.ReceivePaymentBody
+			err := json.Unmarshal([]byte(msg.Payload), &paymentData)
+			if err == nil {
+				err = paymentProcessorClient.SendPayment(paymentData)
+				if err != nil {
+					paymentProcessorClient.SetBaseUrl(paymentProcessorUrls[fallbackBaseUrlIndex])
+					paymentProcessorClient.SendPayment(paymentData)
+				}
+			}
+		}
+	}()
 
 	app.Post("/payments", paymentHandlers.ReceivePayment)
 	app.Listen(":4444")

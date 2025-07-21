@@ -54,14 +54,15 @@ func (ph *PaymentHandlers) ReceivePayment(c *fiber.Ctx) error {
 
 	if err != nil {
 		c.App().ErrorHandler(c, fmt.Errorf("error storing payment information"))
-
 	}
 
 	paymentKey := fmt.Sprintf("payment:%v", bodyParsed.CorrelationId)
 
 	ph.RedisClient.Set(paymentKey, paymentInfoData, time.Hour)
 
-	fmt.Println("Payment successfully stored")
+	ph.RedisClient.Publish("payments", paymentInfoData)
+
+	fmt.Println("Payment successfully stored and published")
 
 	return nil
 }
