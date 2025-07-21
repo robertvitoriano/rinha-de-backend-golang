@@ -18,6 +18,9 @@ x-service-templates:
 services:
   rinha-1:
    <<: *rinha
+   environment:
+      - PROCESSOR_DEFAULT_URL=http://payment-processor-default:8080
+      - PROCESSOR_FALLBACK_URL=http://payment-processor-fallback:8080
 
   rinha-2:
    <<: *rinha

@@ -35,6 +35,7 @@ func (ph *PaymentHandlers) ReceivePayment(c *fiber.Ctx) error {
 	body := c.Body()
 
 	err := json.Unmarshal(body, &bodyParsed)
+
 	if err != nil {
 		c.App().ErrorHandler(c, fmt.Errorf("error parsing json"))
 	}
@@ -61,13 +62,6 @@ func (ph *PaymentHandlers) ReceivePayment(c *fiber.Ctx) error {
 	ph.RedisClient.Set(paymentKey, paymentInfoData, time.Hour)
 
 	fmt.Println("Payment successfully stored")
-
-	//TODO MAKE REQUEST TO PAYMENT PROCCESSOR AND HANDLE FAILURE
-	// resp, err := http.Get("https://api.example.com/data")
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// defer resp.Body.Close()
 
 	return nil
 }
