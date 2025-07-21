@@ -10,8 +10,8 @@ import (
 func Job(paymentData handlers.ReceivePaymentBody, client *clients.PaymentProcessor) {
 
 	paymentProcessorUrls := []string{
-		os.Getenv("PAYMENT_PROCESSOR_URL"),
-		os.Getenv("PAYMENT_PROCESSOR_URL"),
+		os.Getenv("PROCESSOR_DEFAULT_URL"),
+		os.Getenv("PROCESSOR_FALLBACK_URL"),
 	}
 
 	defaultBaseUrlIndex := 0
